@@ -1,5 +1,10 @@
 # 台灣高齡人口長照供需落差分析與需求預測
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ltc-dashboard-ekx3eycnu4t2hgdyhjeqzh.streamlit.app/)
+[![每月自動更新長照資料](https://github.com/Yao-JX/ltc-dashboard/actions/workflows/update-data.yml/badge.svg)](https://github.com/Yao-JX/ltc-dashboard/actions/workflows/update-data.yml)
+
+> 🔗 **線上互動儀表板**：https://ltc-dashboard-ekx3eycnu4t2hgdyhjeqzh.streamlit.app/
+
 期末專題 — 透過政府公開資料，分析各縣市高齡人口（需求）與長照資源（供給）是否平衡，
 找出資源相對不足的地區，並預測未來高齡化趨勢與床位缺口。
 
