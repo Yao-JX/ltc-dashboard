@@ -15,6 +15,7 @@
 | 4. 視覺化圖表（含台灣分縣市地圖） | ✅ | `output/*.png`（7 張） |
 | 5. 需求預測（老化指數 + 2030 床位缺口） | ✅ | `forecast_*.csv` |
 | 6. 互動式儀表板（Streamlit + Plotly） | ✅ | `app.py` |
+| 7. 每月自動更新資料（GitHub Actions） | ✅ | `.github/workflows/update-data.yml` + `scripts/download_data.py` |
 
 ## 二、快速開始
 
@@ -34,7 +35,7 @@ streamlit run app.py               # 開啟互動式儀表板
 ├─ app.py                          ← Streamlit 互動式儀表板
 ├─ data/
 │  ├─ raw/                         ← 原始下載檔
-│  │   ├─ 77132_pop_single_age_2025_05.csv   內政部 村里單一年齡人口 (2025/5)
+│  │   ├─ 77132_pop_single_age_latest.csv    內政部 村里單一年齡人口 (自動抓最新月)
 │  │   ├─ ris_aging_index_by_county.xls      戶政司 縣市老化指數/老年比率 (2010–2025)
 │  │   ├─ disability_by_age_county.xls        衛福部 身心障礙者人數 (年齡×縣市)
 │  │   ├─ disability_by_type_county.xls       衛福部 身心障礙者人數 (類別×縣市)

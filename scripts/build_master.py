@@ -22,9 +22,17 @@ def log(t): print("\n" + "="*60 + f"\n{t}\n" + "="*60)
 # ---------------------------------------------------------------
 # 1) 人口：縣市總人口、65+、75+（資料年 2025/5 民國114年5月，村里單一年齡彙總）
 # ---------------------------------------------------------------
-log("STEP1 人口單一年齡 (77132, 2025/5)")
-pop = pd.read_csv(os.path.join(RAW, "77132_pop_single_age_2025_05.csv"))
-POP_YEAR = "2025"
+log("STEP1 人口單一年齡 (77132)")
+# 優先使用排程下載的最新檔；否則退回既有的年月檔
+_latest = os.path.join(RAW, "77132_pop_single_age_latest.csv")
+if os.path.exists(_latest):
+    pop_path = _latest
+else:
+    _cands = sorted(glob.glob(os.path.join(RAW, "77132_pop_single_age*.csv")))
+    pop_path = _cands[-1] if _cands else _latest
+print("使用人口檔:", os.path.basename(pop_path))
+pop = pd.read_csv(pop_path)
+POP_YEAR = "latest"
 pop["縣市"] = pop["區域別"].astype(str).str[:3]
 pop = pop[pop["縣市"].isin(COUNTIES)].copy()
 

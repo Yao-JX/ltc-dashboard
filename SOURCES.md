@@ -5,7 +5,7 @@
 
 | # | 資料名稱 | 提供機關 | 來源 | 檔案 |
 | --- | --- | --- | --- | --- |
-| 1 | 村里戶數、單一年齡人口（新增區域代碼） | 內政部戶政司 | data.gov.tw dataset **77132**<br>https://data.gov.tw/dataset/77132 | `77132_pop_single_age_2025_05.csv`（**2025/5 民國114年5月**，村里單一年齡，彙總至縣市；分析主用） |
+| 1 | 村里戶數、單一年齡人口（新增區域代碼） | 內政部戶政司 | data.gov.tw dataset **77132**<br>https://data.gov.tw/dataset/77132 | `77132_pop_single_age_latest.csv`（每月更新，程式自動抓最新月份，彙總至縣市；分析主用） |
 | 1b | 人口數單一年齡組─按性別、區域別分 | 內政部 | data.gov.tw dataset **14226**<br>https://data.gov.tw/dataset/14226 | `14226_population_single_age.csv`（2020/民國109，歷史對照用） |
 | 2 | 各縣市老化指數（含老年比率、扶老/扶養比，歷年） | 內政部戶政司 | https://www.ris.gov.tw/app/portal/346 （人口統計資料 → 年齡結構） | `ris_aging_index_by_county.xls`（2010–2025） |
 | 3 | 身心障礙者人數按年齡及縣市別分 | 衛生福利部統計處 | 身心障礙統計專區<br>https://dep.mohw.gov.tw/dos/cp-5224-62359-113.html | `disability_by_age_county.xls`（含 2015–2025 各年分頁） |
