@@ -8,7 +8,7 @@ import os, re, glob
 import numpy as np
 import pandas as pd
 
-BASE = r"C:\Users\y\03-SQL_Demo\0618"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(BASE, "data", "raw")
 OUT = os.path.join(BASE, "data", "processed")
 os.makedirs(OUT, exist_ok=True)

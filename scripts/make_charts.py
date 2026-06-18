@@ -12,7 +12,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
 
-BASE = r"C:\Users\y\03-SQL_Demo\0618"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(BASE, "output")
 os.makedirs(OUT, exist_ok=True)
 
