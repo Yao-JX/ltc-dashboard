@@ -19,13 +19,17 @@ jobs:
         with:
           python-version: "3.12"
       - name: 安裝套件
-        run: pip install pandas numpy xlrd openpyxl pdfplumber
+        run: pip install pandas numpy xlrd openpyxl pdfplumber scikit-learn
       - name: 下載最新原始資料
         run: python scripts/download_data.py
       - name: 解析長照 PDF
         run: python scripts/parse_ltc_pdfs.py
       - name: 重新產生縣市主表與預測
         run: python scripts/build_master.py
+      - name: 重跑機器學習與時間序列方法比較
+        run: |
+          python scripts/ml_supply_gap.py
+          python scripts/timeseries_compare.py
       - name: 提交更新（若有變動）
         run: |
           git config user.name "github-actions[bot]"
