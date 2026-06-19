@@ -28,10 +28,10 @@ PROC = os.path.join(BASE, "data", "processed")
 OUT = os.path.join(BASE, "output")
 os.makedirs(OUT, exist_ok=True)
 
-try:
-    FONT = FontProperties(fname=r"C:\Windows\Fonts\msjh.ttc")
-except Exception:
-    FONT = FontProperties()
+# Windows 有微軟正黑體就用它；其他環境（例如 CI 的 Linux）找不到就退回預設字型，
+# 不然 FontProperties 不會在建立時報錯，要等畫圖才爆。
+_font = r"C:\Windows\Fonts\msjh.ttc"
+FONT = FontProperties(fname=_font) if os.path.exists(_font) else FontProperties()
 plt.rcParams["axes.unicode_minus"] = False
 
 TARGET_YEAR = 2030
