@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: 安裝套件
-        run: pip install pandas numpy xlrd openpyxl pdfplumber scikit-learn
+        run: pip install pandas numpy xlrd openpyxl pdfplumber scikit-learn matplotlib
       - name: 下載最新原始資料
         run: python scripts/download_data.py
       - name: 解析長照 PDF
