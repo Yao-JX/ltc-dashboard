@@ -18,6 +18,11 @@ Thumbs.db
 # 暫存
 *.log
 output/_*.txt
+*_dump.txt
+ts_out.txt
+
+# SQLite 由 build_db.py 重建，不進版控
+data/processed/*.db
 
 # 注意：以下「不要」忽略，App 部署需要它們
 # data/processed/  assets/  app.py  requirements.txt

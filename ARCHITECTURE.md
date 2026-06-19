@@ -1,14 +1,13 @@
-# 系統架構文件（ARCHITECTURE）
+# 架構說明（ARCHITECTURE）
 
-台灣長照供需分析 — 工程面的運作方式、流程與架構。
-
-> 本文的 Mermaid 圖在 GitHub 上會自動渲染成圖形；ASCII 圖在任何環境都看得到。
+這份筆記記錄整個專案工程面是怎麼運作的：流程、分層、各程式之間怎麼接。
+（下面的 Mermaid 圖在 GitHub 上會自動畫成圖；ASCII 圖在哪裡都看得到。）
 
 ---
 
-## 1. 高層架構（分層）
+## 1. 分層
 
-整個系統分成五層，資料**單向往下流**：來源 → 擷取 → 處理 → 儲存 → 呈現，外加一層自動化。
+整個系統大致分五層，資料單向往下流：來源 → 擷取 → 處理 → 儲存 → 呈現，外加一層自動化。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -35,9 +34,8 @@
         ⑥ 自動化層：GitHub Actions 每月觸發 ②→③（見第 4 節）
 ```
 
-**核心設計原則：原始資料(raw)與處理結果(processed)分離。**
-重運算（下載、解析、計算）只在處理層做一次，結果存成扁平 CSV；
-呈現層（圖表、網站）**只讀 CSV、不重算**，因此快速且穩定。
+這裡有個原則：原始資料(raw)和處理結果(processed)分開。重的運算（下載、解析、計算、訓練模型）
+只在處理層做一次，結果存成扁平 CSV；呈現層（圖表、網站）只讀 CSV、不重算，所以開起來快又穩。
 
 ---
 
@@ -66,7 +64,11 @@ flowchart TD
 
     M & F1 & F2 & C1 & R1 --> PROC["data/processed/"]
 
-    PROC -->|"make_charts.py"| PNG["output/*.png<br/>11 張靜態圖"]
+    PROC -->|"make_charts.py"| PNG["output/*.png<br/>14 張靜態圖"]
+    PROC -->|"ml_supply_gap.py"| ML["ml_*.csv<br/>分類結果"]
+    PROC -->|"timeseries_compare.py"| TSF["forecast_method_*.csv<br/>三法比較"]
+    PROC -->|"build_db.py"| DB["ltc.db<br/>SQLite"]
+    ML & TSF --> PROC
     PROC -->|"app.py 讀取"| WEB["Streamlit 互動儀表板"]
     GEO["assets/tw_counties.json<br/>縣市界地圖"] --> PNG
     GEO --> WEB
@@ -79,8 +81,11 @@ flowchart TD
 | 1 擷取 | `download_data.py` | 政府網站 | `data/raw/*` |
 | 2 解析 | `parse_ltc_pdfs.py` | 2 個長照 PDF | `ltc_coverage.csv`、`ltc_resources.csv` |
 | 3 建表 | `build_master.py` | `data/raw/*` + 上述 2 CSV | `county_master.csv` 等 6 個 CSV |
-| 4 繪圖 | `make_charts.py` | `data/processed/*` + geojson | `output/*.png` |
-| 5 服務 | `app.py` | `data/processed/*` + geojson | 網頁（即時） |
+| 4 繪圖 | `make_charts.py` | `data/processed/*` + geojson | `output/*.png`（01–11） |
+| 5 建庫 | `build_db.py` | `data/processed/*` | `ltc.db`（SQLite） |
+| 6 模型 | `ml_supply_gap.py` | `county_master.csv` | `ml_*.csv` + 圖 12、13 |
+| 7 預測比較 | `timeseries_compare.py` | `aging_index_timeseries.csv` | `forecast_method_*.csv` + 圖 14 |
+| 8 服務 | `app.py` | `data/processed/*` + geojson | 網頁（即時） |
 
 ---
 
@@ -150,14 +155,18 @@ flowchart TD
     PP --> PROC[(data/processed)]
     BM --> PROC
     PROC --> MC["make_charts.py"] --> OUT[(output)]
+    PROC --> MLs["ml_supply_gap.py"] --> OUT
+    PROC --> TSs["timeseries_compare.py"] --> OUT
+    PROC --> DBs["build_db.py"] --> DBF[(ltc.db)]
     PROC --> APP["app.py"]
     ASSET[(assets/geojson)] --> MC
     ASSET --> APP
     NB["長照供需分析.ipynb<br/>(獨立：自帶下載+分析)"] -.自成一體.-> PROC
 ```
 
-- `build_master.py` 是樞紐：所有指標與預測都在此計算。
-- `長照供需分析.ipynb` 是**獨立可執行**的版本（自己會下載+清理+畫圖），不依賴上面腳本，方便交報告。
+- `build_master.py` 是樞紐，指標和預測都在這裡算。
+- `ml_supply_gap.py`、`timeseries_compare.py`、`build_db.py` 都只吃 processed CSV，彼此獨立，少跑一支不會影響其他。
+- `長照供需分析.ipynb` 是可以單獨跑的版本（自己下載、清理、畫圖、做模型），不依賴上面腳本，方便交報告。
 
 ---
 
@@ -170,28 +179,22 @@ flowchart TD
 | 檔案解析 | xlrd / openpyxl（XLS/XLSX）、pdfplumber（PDF）| 讀政府各式格式 |
 | 靜態視覺化 | matplotlib | output/*.png（含手繪 choropleth） |
 | 互動視覺化 | Streamlit + Plotly | 線上儀表板 |
+| 機器學習 | scikit-learn | 供給不足分類（邏輯迴歸/決策樹/隨機森林） |
+| 資料庫 | sqlite3（標準庫） | 把 processed CSV 灌進 SQLite，用 SQL 查 |
 | 取得資料 | urllib（標準庫）| 下載，含並行掃描最新月份 |
 | 版本控制/CI | Git + GitHub Actions | 自動更新 |
 | 部署 | Streamlit Community Cloud | 公開網址 |
 
 ---
 
-## 7. 關鍵工程決策（為什麼這樣寫）
+## 7. 幾個寫法上的選擇
 
-| 決策 | 原因 |
-|---|---|
-| raw / processed 分離 | 重運算只做一次；網站只讀結果 → 快、穩、可離線展示 |
-| 下載獨立成一支腳本 | 「更新資料」與「重算分析」解耦，方便排程單獨呼叫 |
-| 路徑用 `os.path…__file__` 相對定位 | 本機(Windows) 與 CI(Linux) 同一份程式都能跑（曾因寫死 `C:\` 路徑在 CI 失敗） |
-| 下載最新月份用 `read(2500)` 並行掃描 | 政府 API 不一定支援 Range；只讀前段避免整檔下載，101 期×並行 → 數秒完成 |
-| 下載每來源 try/except 隔離 | 單一政府網站當機不會讓整條管線失敗 |
-| 預測用線性迴歸 | 資料點少、趨勢近直線；簡單、可解釋、不過擬合 |
-| 指標標準化 z-score 後合成 | 不同單位（%、比率）不可直接相加 |
-| 供給/需求指標可替換並保留對照 | 記錄「指標選擇如何改變結論」的方法論反思 |
-| CSV 存檔用 `utf-8-sig` | Excel 開啟中文不亂碼 |
-
----
-
-## 8. 一句話總結
-
-> **以「資料管線」為骨架（下載→解析→建表→呈現），用「raw/processed 分離」確保快與穩，再用「同一份程式碼 × 三種執行環境（本機/雲端/排程）」達成可開發、可線上、可自動維護的閉環。**
+- **raw / processed 分離**：重運算只做一次，網站只讀結果，所以快、穩、也能離線展示。
+- **下載獨立成一支腳本**：「更新資料」和「重算分析」分開，排程才好單獨呼叫。
+- **路徑用 `os.path…__file__` 相對定位**：本機 Windows 和 CI 的 Linux 同一份程式都能跑。一開始寫死 `C:\` 路徑，結果 CI 掛掉，才改掉。
+- **下載最新月份用 `read(2500)` 並行掃描**：政府 API 不一定支援 Range，只讀前段避免整檔下載，一百多期平行掃幾秒就好。
+- **每個下載來源各自 try/except**：單一政府網站當掉，不會把整條管線拖垮。
+- **預測主軸用線性迴歸**：資料點少、趨勢接近直線，簡單又好解釋；另外用 CAGR、移動平均做回測對照（見 `timeseries_compare.py`）。
+- **機器學習特徵避免洩漏**：分類「供給不足」時，特徵不放涵蓋率本身或由它算出來的欄位，否則等於偷看答案。
+- **指標 z-score 後再合成**：不同單位（%、比率）不能直接相加。
+- **CSV 存檔用 `utf-8-sig`**：Excel 開中文才不會亂碼。

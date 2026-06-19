@@ -6,3 +6,4 @@ matplotlib
 streamlit
 plotly
 pdfplumber
+scikit-learn

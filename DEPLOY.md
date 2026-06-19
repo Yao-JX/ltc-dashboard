@@ -89,7 +89,8 @@ git push
   plotly
   pandas
   ```
-  （`matplotlib / pdfplumber / xlrd / openpyxl` 只有跑 notebook 才需要，雲端 App 不必。）
+  （`matplotlib / pdfplumber / xlrd / openpyxl / scikit-learn` 只有跑 notebook 和腳本才需要；
+  App 讀的是算好的 CSV，SQL 分頁用的是 Python 內建 `sqlite3`，雲端不必裝那些。）
 - **App 顯示找不到檔案**：確認 `data/processed/` 與 `assets/` 有被 `git push` 上去
   （`git status` 看是否有未追蹤檔；`.gitignore` 並未忽略這兩個資料夾）。
 - **想關閉/重啟**：在 https://share.streamlit.io 的 app 清單可 Reboot / Delete。

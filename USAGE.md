@@ -1,22 +1,22 @@
 # 使用教學（USAGE）
 
-台灣高齡人口長照供需分析 — 一步一步教你跑起來。
+怎麼把這個專案跑起來。
 
 ---
 
 ## 0. 事前準備
 
-- 安裝 **Python 3.10 以上**（本專案以 3.12 開發）。
-- 開啟「命令提示字元 (CMD)」或「PowerShell」，切換到專案資料夾：
+- 裝 Python 3.10 以上（我是用 3.12 開發）。
+- 開命令提示字元（CMD）或 PowerShell，切到專案資料夾：
   ```cmd
   cd C:\Users\y\03-SQL_Demo\0618
   ```
-- 安裝所需套件（只需做一次）：
+- 裝套件（只要做一次）：
   ```cmd
   python -m pip install -r requirements.txt
   ```
 
-> 💡 確認用對 Python：`python -c "import streamlit; print('OK')"` 顯示 OK 就對了。
+確認 Python 沒裝錯：`python -c "import streamlit; print('OK')"` 顯示 OK 就對了。
 
 ---
 
@@ -29,10 +29,10 @@ python -m streamlit run app.py
 ```
 
 - 終端機會顯示 `Local URL: http://localhost:8501`，瀏覽器會自動打開。
-- 四個分頁：🗺️ 供需地圖 / 📊 缺口排名 / 📈 趨勢與預測 / 🔎 縣市詳情。
+- 六個分頁：供需地圖 / 缺口排名 / 趨勢與預測 / 供給不足預測(ML) / 資料庫查詢(SQL) / 縣市詳情。
 - 結束：在終端機按 `Ctrl + C`。
 
-> ⚠️ 一定要用 `streamlit run`，**不要**用 `python app.py` 或 `uv run app.py`，否則不會啟動網頁。
+注意：一定要用 `streamlit run`，不要用 `python app.py` 或 `uv run app.py`，那樣不會啟動網頁。
 
 ### 方式 B：看完整分析過程（適合報告／作業）
 
@@ -46,9 +46,12 @@ python -m jupyter notebook 長照供需分析.ipynb
 ### 方式 C：用指令重新產生所有資料與圖表
 
 ```cmd
-python scripts\parse_ltc_pdfs.py     # 解析長照 PDF → CSV
-python scripts\build_master.py       # 原始資料 → 縣市主表＋指標＋預測
-python scripts\make_charts.py        # 產出 output\ 的 11 張圖
+python scripts\parse_ltc_pdfs.py      # 解析長照 PDF → CSV
+python scripts\build_master.py        # 原始資料 → 縣市主表＋指標＋預測
+python scripts\make_charts.py         # 產出 output\ 的圖（01–11）
+python scripts\build_db.py            # 把 processed CSV 灌進 SQLite，順便示範查詢
+python scripts\ml_supply_gap.py       # 機器學習：預測縣市是否供給不足（圖 12、13）
+python scripts\timeseries_compare.py  # 老化指數三種預測方法比較（圖 14）
 ```
 
 ---
@@ -60,7 +63,10 @@ python scripts\make_charts.py        # 產出 output\ 的 11 張圖
 | 縣市主表（最終結果） | `data\processed\county_master.csv` |
 | 新舊觀點對照 | `data\processed\risk_comparison.csv` |
 | 2030 床位缺口 | `data\processed\forecast_bed_demand_2030.csv` |
-| 所有圖表 | `output\*.png`（共 11 張） |
+| 機器學習結果 | `data\processed\ml_*.csv` |
+| 三種預測方法比較 | `data\processed\forecast_method_*.csv` |
+| SQLite 資料庫 | `data\processed\ltc.db`（由 `build_db.py` 重建） |
+| 所有圖表 | `output\*.png`（共 14 張） |
 | 原始政府資料 | `data\raw\` |
 | 資料來源出處 | `SOURCES.md` |
 | 方法與發現說明 | `README.md` |
