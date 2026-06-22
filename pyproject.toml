@@ -1,0 +1,21 @@
+[project]
+name = "ltc-dashboard"
+version = "0.1.0"
+description = "台灣高齡人口長照供需落差分析與需求預測"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "numpy",
+    "xlrd",
+    "openpyxl",
+    "matplotlib",
+    "streamlit",
+    "plotly",
+    "pdfplumber",
+    "scikit-learn",
+    "jupyter",
+]
+
+[tool.uv]
+package = false
